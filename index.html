@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Forja de Oraciones — Evaluación Gratuita</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#e5d0e4;
+  --bg-header:#f3ecf3;
+  --card:#fff;
+  --card-hover:#f8f3f8;
+  --card-sel-bg:#eee0ee;
+  --card-sel-border:#1c0f1c;
+  --dark:#1c0f1c;
+  --mid:#8a728a;
+  --light:#b8a4b8;
+  --btn:#1c0f1c;
+  --btn-dis:#c0b0c0;
+  --green:#2a8f5a;
+  --orange:#c87020;
+  --fd:'Cormorant Garamond',Georgia,serif;
+  --fs:'DM Sans',sans-serif;
+}
+html,body{height:100%;background:#c8aec8}
+body{font-family:var(--fs);display:flex;justify-content:center;align-items:flex-start;min-height:100%}
+.app{width:100%;max-width:430px;min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
+
+/* HEADER */
+.hdr{background:var(--bg-header);border-bottom:1px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;padding:10px 20px;position:relative;flex-shrink:0}
+.back{position:absolute;left:14px;background:none;border:none;cursor:pointer;font-size:24px;color:var(--dark);opacity:.65;padding:4px 8px;line-height:1;transition:opacity .2s}
+.back:hover{opacity:1}
+.logo{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none}
+.logo svg{width:34px;height:38px}
+.logo-name{font-family:var(--fs);font-size:8px;letter-spacing:3px;color:var(--mid);font-weight:500;text-transform:uppercase}
+
+/* PROGRESS */
+.prog{display:flex;align-items:center;justify-content:center;padding:14px 28px 8px;gap:0;flex-shrink:0}
+.pd{width:22px;height:22px;border-radius:50%;border:2px solid var(--light);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .35s ease}
+.pd.done{background:var(--dark);border-color:var(--dark)}
+.pd.done::after{content:'';display:block;width:7px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.pl{flex:1;height:2px;background:var(--light);transition:background .35s ease;min-width:14px;max-width:60px}
+.pl.done{background:var(--dark)}
+
+/* SCREEN */
+.scr{flex:1;display:flex;flex-direction:column;overflow-y:auto}
+
+/* ── LANDING ── */
+.land{display:flex;flex-direction:column;min-height:100vh}
+.land-hdr{background:var(--bg-header);border-bottom:1px solid rgba(0,0,0,.08);display:flex;justify-content:center;align-items:center;padding:10px 20px;position:relative}
+.land-back{position:absolute;left:14px;background:none;border:none;cursor:pointer;font-size:24px;color:var(--dark);opacity:.65;padding:4px 8px;line-height:1}
+.land-body{flex:1;display:flex;flex-direction:column;align-items:center;padding:28px 24px 12px;text-align:center}
+.land-h1{font-family:var(--fd);font-size:27px;font-weight:700;color:var(--dark);line-height:1.3;margin-bottom:12px}
+.land-sub{font-size:14px;color:var(--mid);line-height:1.6;margin-bottom:22px;max-width:320px}
+.land-img{width:230px;height:230px;border-radius:14px;object-fit:cover;background:#c9aec8;display:flex;align-items:center;justify-content:center;font-size:72px;flex-shrink:0}
+
+/* QUESTION */
+.qc{flex:1;padding:18px 20px 6px;display:flex;flex-direction:column}
+.qtit{font-family:var(--fd);font-size:21px;font-weight:700;color:var(--dark);text-align:center;line-height:1.35;margin-bottom:8px}
+.qsub{font-size:13px;color:var(--mid);text-align:center;line-height:1.55;margin-bottom:16px}
+.info-box{background:var(--card);border-radius:14px;padding:13px 16px;font-size:13px;color:var(--mid);text-align:center;line-height:1.55;margin-bottom:14px}
+
+/* OPTIONS */
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{background:var(--card);border:2px solid transparent;border-radius:14px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:14px;color:var(--dark);font-weight:400;transition:background .15s,border-color .15s,transform .1s;text-align:left;line-height:1.35}
+.opt:hover{background:var(--card-hover);transform:translateX(2px)}
+.opt.sel{border-color:var(--card-sel-border);background:var(--card-sel-bg)}
+.oa{color:var(--light);font-size:13px;margin-left:10px;flex-shrink:0}
+
+/* GRID */
+.opts-g{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.opt-g{background:var(--card);border:2px solid transparent;border-radius:14px;padding:14px 12px;display:flex;align-items:flex-start;justify-content:space-between;cursor:pointer;font-size:13px;color:var(--dark);font-weight:400;transition:background .15s,border-color .15s;line-height:1.3;gap:6px}
+.opt-g:hover{background:var(--card-hover)}
+.opt-g.sel{border-color:var(--card-sel-border);background:var(--card-sel-bg)}
+.opt-g .oa{margin-left:0;margin-top:1px}
+
+/* EMOJI */
+.emoji-row{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.emo{width:62px;height:62px;background:var(--card);border:2px solid transparent;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;transition:all .15s}
+.emo:hover{background:var(--card-hover);transform:scale(1.07)}
+.emo.sel{border-color:var(--card-sel-border);background:var(--card-sel-bg)}
+
+/* INTERLUDE */
+.inter{flex:1;padding:20px 22px 8px;display:flex;flex-direction:column;text-align:center}
+.inter-tit{font-family:var(--fd);font-size:22px;font-weight:700;color:var(--dark);margin-bottom:20px;line-height:1.35}
+.inter-stat{font-family:var(--fd);font-size:20px;font-weight:700;color:var(--dark);margin-bottom:14px;line-height:1.35}
+.inter-txt{font-size:14px;color:var(--mid);line-height:1.6;margin-bottom:14px}
+.inter-quote{font-size:13px;color:var(--dark);font-style:italic;line-height:1.6;margin-bottom:14px;opacity:.75}
+.inter-verse{font-size:13px;color:var(--mid);font-style:italic;line-height:1.55;margin-top:8px}
+
+/* LOADING */
+.load-wrap{flex:1;padding:20px;display:flex;flex-direction:column;align-items:center}
+.load-tit{font-family:var(--fd);font-size:20px;font-weight:700;color:var(--dark);text-align:center;margin-bottom:20px}
+.prog-bar-bg{width:100%;height:8px;background:#d8c8d8;border-radius:4px;overflow:hidden;margin-bottom:8px}
+.prog-bar-fill{height:100%;background:var(--dark);border-radius:4px;width:0%;transition:width .4s ease}
+.load-pct{font-size:14px;color:var(--mid);text-align:center;margin-bottom:5px}
+.load-status{font-size:13px;color:var(--light);text-align:center;margin-bottom:24px}
+.test-card{background:var(--card);border-radius:14px;padding:16px 18px;width:100%}
+.test-card p{font-size:13px;color:var(--mid);line-height:1.7;display:flex;align-items:flex-start;gap:8px}
+.test-card p::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+
+/* RESULT 1 – plan ready */
+.res-wrap{flex:1;padding:20px 22px 8px;display:flex;flex-direction:column}
+.res-tit{font-family:var(--fd);font-size:22px;font-weight:700;color:var(--dark);text-align:center;margin-bottom:12px;line-height:1.35}
+.res-txt{font-size:14px;color:var(--mid);line-height:1.6;text-align:center;margin-bottom:18px}
+.chart-card{background:var(--card);border-radius:14px;padding:16px 18px}
+.chart-head{display:flex;justify-content:space-between;font-size:13px;color:var(--mid);margin-bottom:10px}
+.chart-bar-bg{height:8px;background:#e8d8e8;border-radius:4px;overflow:hidden;margin-bottom:8px}
+.chart-bar-fill{height:100%;background:var(--dark);border-radius:4px;width:72%}
+.chart-note{font-size:11px;color:var(--light);line-height:1.4}
+
+/* RESULT 2 – coach */
+.coach-wrap{flex:1;padding:20px 22px 8px;display:flex;flex-direction:column;text-align:center}
+.coach-tit{font-family:var(--fd);font-size:22px;font-weight:700;color:var(--dark);margin-bottom:18px;line-height:1.35}
+.coach-img{width:180px;height:180px;border-radius:14px;object-fit:cover;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:56px;margin:0 auto 18px;flex-shrink:0}
+.coach-card{background:var(--card);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.coach-card p{font-size:14px;color:var(--mid);line-height:1.6;text-align:center}
+.coach-note{font-size:14px;color:var(--mid);line-height:1.6}
+
+/* PRICING */
+.price-wrap{flex:1;padding:16px 20px 8px;display:flex;flex-direction:column}
+.price-tit{font-family:var(--fd);font-size:20px;font-weight:700;color:var(--dark);text-align:center;margin-bottom:14px;line-height:1.35}
+.timer-card{border:2px solid var(--orange);border-radius:14px;padding:14px 18px;text-align:center;margin-bottom:16px;background:var(--card)}
+.timer-label{font-size:14px;font-weight:600;color:var(--orange);margin-bottom:6px}
+.timer-sub{font-size:13px;color:var(--mid)}
+.plan-card{background:var(--card);border:2px solid transparent;border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .15s;margin-bottom:10px}
+.plan-card:hover{border-color:var(--dark)}
+.plan-card.sel{border-color:var(--dark)}
+.plan-pop-banner{background:var(--green);color:#fff;font-size:12px;font-weight:600;text-align:center;padding:6px}
+.plan-body{padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.plan-name{font-size:14px;font-weight:600;color:var(--dark);margin-bottom:3px}
+.plan-prices{font-size:13px;color:var(--mid)}
+.plan-prices del{opacity:.6}
+.plan-prices strong{color:var(--dark)}
+.plan-rate{text-align:right}
+.plan-rate-amount{font-size:22px;font-weight:700;color:var(--dark);line-height:1}
+.plan-rate-super{font-size:13px;vertical-align:top;line-height:1.6}
+.plan-rate-day{font-size:11px;color:var(--mid);margin-top:2px}
+.price-footer{font-size:12px;color:var(--mid);text-align:center;margin-top:4px}
+.free-trial-badge{background:linear-gradient(135deg,#2a8f5a,#1e7048);color:#fff;border-radius:12px;padding:12px 18px;text-align:center;margin-bottom:14px}
+.free-trial-badge strong{font-size:15px;font-weight:700;display:block;margin-bottom:3px}
+.free-trial-badge span{font-size:12px;opacity:.9}
+.free-tag{background:#2a8f5a;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle}
+
+/* EMAIL */
+.email-wrap{flex:1;padding:20px 22px 8px;display:flex;flex-direction:column}
+.email-tit{font-family:var(--fd);font-size:22px;font-weight:700;color:var(--dark);text-align:center;margin-bottom:10px;line-height:1.35}
+.email-sub{font-size:13px;color:var(--mid);text-align:center;line-height:1.6;margin-bottom:22px}
+.email-inp{width:100%;padding:16px 18px;border-radius:14px;border:2px solid transparent;background:#f0e8f0;font-size:14px;font-family:var(--fs);color:var(--dark);outline:none;transition:border-color .2s,background .2s;margin-bottom:10px}
+.email-inp:focus{border-color:var(--dark);background:#fff}
+.email-inp::placeholder{color:var(--light)}
+.privacy{font-size:11px;color:var(--light);line-height:1.4}
+
+/* BUTTONS */
+.bot{padding:14px 20px 20px;flex-shrink:0}
+.btn{width:100%;padding:18px;background:var(--btn);color:#fff;border:none;border-radius:50px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--fs);transition:opacity .2s;letter-spacing:.2px}
+.btn:hover{opacity:.88}
+.btn:disabled{background:var(--btn-dis);cursor:not-allowed}
+.btn-out{width:100%;padding:17px;background:transparent;color:var(--dark);border:2px solid var(--dark);border-radius:50px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--fs);transition:background .15s;margin-top:10px}
+.btn-out:hover{background:rgba(0,0,0,.04)}
+
+/* FOOTER */
+.foot{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 20px 20px;font-size:11px;color:var(--light)}
+.foot a{color:var(--light);text-decoration:none}
+.foot a:hover{color:var(--mid)}
+
+/* THANKYOU */
+.ty-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center}
+.ty-emoji{font-size:64px;margin-bottom:20px}
+.ty-tit{font-family:var(--fd);font-size:26px;font-weight:700;color:var(--dark);margin-bottom:14px;line-height:1.35}
+.ty-txt{font-size:14px;color:var(--mid);line-height:1.7}
+
+/* anim */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.scr{animation:fadeIn .25s ease}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- ═══ LANDING ═══ -->
+<div id="s-land" class="land">
+  <div class="land-hdr">
+    <div class="logo">
+      <svg viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="6" r="4" stroke="#9a849a" stroke-width="1.5"/>
+        <line x1="20" y1="10" x2="20" y2="44" stroke="#9a849a" stroke-width="1.8"/>
+        <line x1="10" y1="19" x2="30" y2="19" stroke="#9a849a" stroke-width="1.8"/>
+        <path d="M8 30 Q20 38 32 30" stroke="#9a849a" stroke-width="1.5" fill="none"/>
+      </svg>
+      <span class="logo-name">Forja de Oraciones</span>
+    </div>
+  </div>
+  <div class="land-body">
+    <h1 class="land-h1">¿Y si en 90 días pudieras vivir con propósito, paz y prosperidad?</h1>
+    <p class="land-sub">Responde 3 minutos de preguntas y recibe un plan espiritual y financiero diseñado solo para ti.</p>
+    <div class="land-img">🙏</div>
+  </div>
+  <div class="bot">
+    <button class="btn" onclick="go(0)">Comenzar mi evaluación gratuita →</button>
+  </div>
+  <div class="foot">
+    <a href="#">Contact us</a><span>·</span>
+    <a href="#">Terms of Use</a><span>·</span>
+    <a href="#">Privacy Policy</a><span>·</span>
+    <a href="#">Subscription Terms</a>
+  </div>
+</div>
+
+<!-- ═══ QUIZ CONTAINER ═══ -->
+<div id="quiz" style="display:none;flex-direction:column;flex:1">
+  <div class="hdr" id="qhdr">
+    <button class="back" onclick="goBack()">‹</button>
+    <div class="logo">
+      <svg viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="6" r="4" stroke="#9a849a" stroke-width="1.5"/>
+        <line x1="20" y1="10" x2="20" y2="44" stroke="#9a849a" stroke-width="1.8"/>
+        <line x1="10" y1="19" x2="30" y2="19" stroke="#9a849a" stroke-width="1.8"/>
+        <path d="M8 30 Q20 38 32 30" stroke="#9a849a" stroke-width="1.5" fill="none"/>
+      </svg>
+      <span class="logo-name">Forja de Oraciones</span>
+    </div>
+  </div>
+  <div class="prog" id="pdots"></div>
+  <div id="scr" class="scr"></div>
+</div>
+
+</div>
+
+<script>
+const STEPS = 5;
+let idx = 0;
+let ans = {};
+let timer = null;
+let timerSecs = 599;
+
+const SCREENS = [
+  // 0
+  {type:'single',step:1,id:'q1',title:'¿En qué industria trabajas hoy?',sub:'Esto nos ayuda a entender tu realidad y darte recomendaciones que realmente apliquen a tu vida.',opts:['Finanzas y banca','Servicios','Ventas','Salud','Tecnología','Educación','Marketing y creativo','Logística','Legal','Emprendimiento','Otro'],auto:true},
+  // 1
+  {type:'single-c',step:1,id:'q2',title:'¿Tu trabajo actual te hace sentir que estás donde Dios te llamó?',info:'No hay respuesta incorrecta. Muchos sienten ese vacío en silencio — aquí empieza el cambio.',opts:['Sí, me siento en el lugar correcto','No, siento que hay algo más para mí']},
+  // 2
+  {type:'single',step:1,id:'q3',title:'¿Cómo describes tu equilibrio entre trabajo y vida personal?',opts:['Sin equilibrio, estoy agotado/a','El trabajo consume todo mi tiempo','Podría mejorar bastante','Estoy bien equilibrado/a'],auto:true},
+  // 3
+  {type:'single',step:2,id:'q4',title:'¿Qué ingreso anual quieres alcanzar en los próximos 3 años?',sub:'Ponlo en palabras. El primer paso hacia una meta es nombrarla.',opts:['$50K–$100K','$100K–$150K','$150K–$250K','$250K–$500K','$500K+'],auto:true},
+  // 4
+  {type:'emoji',step:2,id:'q5',title:'Freno mis metas porque le temo al error o al fracaso',sub:'Muy en desacuerdo — Muy de acuerdo',emojis:['👎','👎','🤷','👍','👍'],auto:true},
+  // 5
+  {type:'emoji',step:2,id:'q6',title:'Me es difícil perdonarme por errores que cometí en el pasado',sub:'Muy en desacuerdo — Muy de acuerdo',emojis:['👎','👎','🤷','👍','👍'],auto:true},
+  // 6
+  {type:'emoji',step:2,id:'q7',title:'Me cuesta mantener la mente quieta cuando oro o medito',sub:'Muy en desacuerdo — Muy de acuerdo',emojis:['👎','👎','🤷','👍','👍'],auto:true},
+  // 7
+  {type:'inter',step:2,id:'i1',title:'Más de 12,000 personas ya transformaron su vida con este plan',items:[
+    {type:'quote',text:'"En 6 semanas salí de mis deudas y recuperé mi paz. Nunca pensé que fe y finanzas podían ir juntas." — Andrés M., Colombia 🇨🇴'},
+    {type:'quote',text:'"Dejé el cigarro, empecé a ahorrar y volví a orar cada mañana. El plan funciona si tú decides aplicarlo." — Fernanda R., México 🇲🇽'},
+  ],btn:'Eso es lo que quiero para mí →'},
+  // 8
+  {type:'single',step:3,id:'q8',title:'¿Cómo terminas tu día antes de dormir?',sub:'Tu rutina nocturna dice mucho sobre tu estado mental y espiritual.',opts:['Scroll en redes sociales','Leer la Biblia o un libro','Orar o meditar','Escribir en mi diario','Ver TV o series','Otro'],auto:true},
+  // 9
+  {type:'single',step:3,id:'q9',title:'¿Cuánto tiempo pasas en redes sociales cada día?',opts:['Más de 5 horas','3–5 horas','2–3 horas','1–2 horas','Menos de 1 hora'],auto:true},
+  // 10
+  {type:'inter',step:3,id:'i2',stat:'5 horas de scroll al día = 76 días perdidos cada año',items:[
+    {type:'txt',text:'El 86% de nuestros usuarios mejoraron su enfoque al cambiar ese tiempo por sesiones guiadas de solo 10 minutos.'},
+    {type:'txt',text:'No se trata de ser perfecto. Se trata de elegir mejor en los momentos que importan.'},
+    {type:'txt',text:'Cada minuto que recuperas de las redes es un minuto que puedes invertir en crecer.'},
+  ],btn:'Quiero usar mejor mi tiempo →'},
+  // 11
+  {type:'multi',step:3,id:'q10',title:'¿Cuándo te sientes verdaderamente pleno/a?',sub:'Elige todo lo que aplique — sin límite',opts:['Conectar con personas afines','Crear arte o algo con mis manos','Escribir','Alcanzar una meta','Estar en la naturaleza','Hacer ejercicio','Escuchar música','Aprender algo nuevo','Orar o adorar','Servir a otros','Otro'],grid:true},
+  // 12
+  {type:'single',step:4,id:'q11',title:'¿Sientes que errores del pasado están frenando tu paz o tu avance?',opts:['Sí, a veces el pasado pesa mucho','No, ya lo resolví o no me afecta'],auto:true},
+  // 13
+  {type:'inter',step:4,id:'i3',title:'Eso que cargas no fue diseñado para que lo cargues solo/a',items:[
+    {type:'txt',text:'La culpa paraliza. La gracia libera. Hay una diferencia enorme entre los dos.'},
+    {type:'txt',text:'Nuestro AI Pastor Coach te acompaña a soltar lo que ya fue perdonado y caminar hacia lo que sí es posible.'},
+    {type:'verse',text:'"Si confesamos nuestros pecados, él es fiel y justo para perdonarnos" — 1 Juan 1:9'},
+  ],btn:'Estoy listo/a para soltar eso →'},
+  // 14
+  {type:'multi',step:4,id:'q12',title:'¿Qué hábitos quieres dejar atrás de una vez por todas?',sub:'Sé honesto/a contigo mismo/a. Nadie más ve tu respuesta.',opts:['Alcohol','Apuestas','Redes en exceso','Comida poco saludable','Dormir mal','Fumar','Acumular deudas','Compras impulsivas','Procrastinación','Pornografía','Otro'],grid:true},
+  // 15
+  {type:'multi',step:4,id:'q13',title:'¿Qué te mueve a querer ser mejor cada día?',sub:'Elige todo lo que aplique',opts:['Alcanzar mis metas','Éxito y libertad personal','Tener casa propia','Conocer el mundo','Crecer profesionalmente','Mi familia','Impactar mi comunidad','Honrar a Dios con mi vida','Otro'],grid:true},
+  // 16
+  {type:'single',step:4,id:'q14',title:'¿Cuánto tiempo estás dispuesto/a a invertir en ti cada día?',sub:'Con tan solo 10 minutos al día se construyen los hábitos más poderosos.',opts:['5 min','10 min','15 min','30 min'],auto:true},
+  // 17 – loading
+  {type:'load',step:5,id:'load'},
+  // 18 – email
+  {type:'email',step:5,id:'email'},
+  // 19 – plan ready
+  {type:'res1',step:5,id:'r1'},
+  // 20 – coach
+  {type:'res2',step:5,id:'r2'},
+  // 21 – pricing
+  {type:'price',step:5,id:'price'},
+  // 22 – thankyou
+  {type:'ty',step:5,id:'ty'},
+];
+
+function go(i){
+  idx=i;
+  document.getElementById('s-land').style.display='none';
+  const q=document.getElementById('quiz');
+  q.style.display='flex';
+  render();
+}
+
+function goBack(){
+  if(idx===0){
+    document.getElementById('quiz').style.display='none';
+    document.getElementById('s-land').style.display='flex';
+  } else {
+    idx--;
+    render();
+  }
+}
+
+function next(){idx++;render();}
+
+function render(){
+  const s=SCREENS[idx];
+  renderDots(s.step);
+  const el=document.getElementById('scr');
+  el.className='scr';
+  void el.offsetWidth; // reflow for animation
+  el.className='scr';
+
+  switch(s.type){
+    case 'single': renderSingle(s,el); break;
+    case 'single-c': renderSingleC(s,el); break;
+    case 'multi': renderMulti(s,el); break;
+    case 'emoji': renderEmoji(s,el); break;
+    case 'inter': renderInter(s,el); break;
+    case 'load': renderLoad(el); break;
+    case 'email': renderEmail(el); break;
+    case 'res1': renderRes1(el); break;
+    case 'res2': renderRes2(el); break;
+    case 'price': renderPrice(el); break;
+    case 'ty': renderTY(el); break;
+  }
+}
+
+function renderDots(step){
+  let h='';
+  for(let i=1;i<=STEPS;i++){
+    if(i>1) h+=`<div class="pl${i<=step?' done':''}"></div>`;
+    h+=`<div class="pd${i<=step?' done':''}"></div>`;
+  }
+  document.getElementById('pdots').innerHTML=h;
+}
+
+/* ─ SINGLE (auto-advance) ─ */
+function renderSingle(s,el){
+  const sel=ans[s.id]||null;
+  let h=`<div class="qc"><div class="qtit">${s.title}</div>`;
+  if(s.sub) h+=`<div class="qsub">${s.sub}</div>`;
+  h+=`<div class="opts">`;
+  s.opts.forEach(o=>{
+    const sc=sel===o?'sel':'';
+    h+=`<div class="opt ${sc}" onclick="pickSingle('${s.id}','${esc(o)}',${s.auto})"><span>${o}</span><span class="oa">|</span></div>`;
+  });
+  h+=`</div></div>`;
+  el.innerHTML=h;
+}
+
+/* ─ SINGLE + CONFIRM BUTTON ─ */
+function renderSingleC(s,el){
+  const sel=ans[s.id]||null;
+  let h=`<div class="qc"><div class="qtit">${s.title}</div>`;
+  if(s.info) h+=`<div class="info-box">${s.info}</div>`;
+  h+=`<div class="opts">`;
+  s.opts.forEach(o=>{
+    const sc=sel===o?'sel':'';
+    h+=`<div class="opt ${sc}" onclick="pickSingleC('${s.id}','${esc(o)}')"><span>${o}</span><span class="oa">|</span></div>`;
+  });
+  h+=`</div></div>`;
+  const dis=sel?'':'disabled';
+  h+=`<div class="bot"><button class="btn" id="cbtn" ${dis} onclick="next()">Continuar</button></div>`;
+  el.innerHTML=h;
+}
+
+/* ─ MULTI SELECT ─ */
+function renderMulti(s,el){
+  const sel=ans[s.id]||[];
+  let h=`<div class="qc"><div class="qtit">${s.title}</div>`;
+  if(s.sub) h+=`<div class="qsub">${s.sub}</div>`;
+  if(s.grid){
+    h+=`<div class="opts-g">`;
+    s.opts.forEach(o=>{
+      const sc=sel.includes(o)?'sel':'';
+      h+=`<div class="opt-g ${sc}" onclick="toggleMulti('${s.id}','${esc(o)}')"><span>${o}</span><span class="oa">|</span></div>`;
+    });
+    h+=`</div>`;
+  } else {
+    h+=`<div class="opts">`;
+    s.opts.forEach(o=>{
+      const sc=sel.includes(o)?'sel':'';
+      h+=`<div class="opt ${sc}" onclick="toggleMulti('${s.id}','${esc(o)}')"><span>${o}</span><span class="oa">|</span></div>`;
+    });
+    h+=`</div>`;
+  }
+  h+=`</div>`;
+  const dis=sel.length?'':'disabled';
+  h+=`<div class="bot"><button class="btn" id="mbtn" ${dis} onclick="next()">Continuar</button></div>`;
+  el.innerHTML=h;
+}
+
+/* ─ EMOJI SCALE ─ */
+function renderEmoji(s,el){
+  const sel=ans[s.id];
+  let h=`<div class="qc"><div class="qtit">${s.title}</div><div class="qsub">${s.sub}</div><div class="emoji-row">`;
+  s.emojis.forEach((e,i)=>{
+    const sc=sel===i?'sel':'';
+    h+=`<div class="emo ${sc}" onclick="pickEmoji('${s.id}',${i})">${e}</div>`;
+  });
+  h+=`</div></div>`;
+  el.innerHTML=h;
+}
+
+/* ─ INTERLUDE ─ */
+function renderInter(s,el){
+  let h=`<div class="inter">`;
+  if(s.stat) h+=`<div class="inter-stat">${s.stat}</div>`;
+  if(s.title) h+=`<div class="inter-tit">${s.title}</div>`;
+  s.items.forEach(it=>{
+    if(it.type==='quote') h+=`<div class="inter-quote">${it.text}</div>`;
+    else if(it.type==='txt') h+=`<div class="inter-txt">${it.text}</div>`;
+    else if(it.type==='verse') h+=`<div class="inter-verse">${it.text}</div>`;
+  });
+  h+=`</div><div class="bot"><button class="btn" onclick="next()">${s.btn}</button></div>`;
+  el.innerHTML=h;
+}
+
+/* ─ LOADING ─ */
+function renderLoad(el){
+  const statuses=['Analizando tus respuestas','Identificando áreas clave','Analizando tus metas','Preparando tu plan espiritual','Calculando tu ruta financiera','Finalizando tu perfil'];
+  el.innerHTML=`<div class="load-wrap">
+    <div class="load-tit">Construyendo tu plan personalizado...</div>
+    <div class="prog-bar-bg"><div class="prog-bar-fill" id="lbar"></div></div>
+    <div class="load-pct" id="lpct">0%</div>
+    <div class="load-status" id="lstat">${statuses[0]}</div>
+    <div class="test-card">
+      <p>Ojala hubiera encontrado esto antes</p>
+      <p>Me ayudó a romper hábitos que me frenaban</p>
+      <p>En un mes sentí cambios reales</p>
+    </div>
+  </div>`;
+  let p=0,si=0;
+  const iv=setInterval(()=>{
+    p+=Math.floor(Math.random()*10)+4;
+    if(p>=100){p=100;clearInterval(iv);setTimeout(()=>next(),700);}
+    document.getElementById('lbar').style.width=p+'%';
+    document.getElementById('lpct').textContent=p+'%';
+    si=Math.min(Math.floor(p/18),statuses.length-1);
+    document.getElementById('lstat').textContent=statuses[si];
+  },320);
+}
+
+/* ─ EMAIL ─ */
+function renderEmail(el){
+  el.innerHTML=`<div class="email-wrap">
+    <div class="email-tit">¿A dónde enviamos tu plan personalizado?</div>
+    <div class="email-sub">Ingresa tu correo y recibe gratis: tu plan de 90 días, devocionales diarios y tu primera sesión con el AI Pastor Coach.</div>
+    <input class="email-inp" type="email" id="einp" placeholder="tuemail@ejemplo.com" oninput="chkEmail()">
+    <div class="privacy">Respetamos tu privacidad y protegemos tus datos personales.</div>
+  </div>
+  <div class="bot"><button class="btn" id="ebtn" disabled onclick="subEmail()">Recibir mi plan gratuito →</button></div>`;
+}
+
+/* ─ RESULT 1 – plan ready ─ */
+function renderRes1(el){
+  el.innerHTML=`<div class="res-wrap">
+    <div class="res-tit">Tu plan de 90 días está listo</div>
+    <div class="res-txt">Basado en tus respuestas, identificamos 3 áreas clave donde puedes avanzar más rápido. Accede a más de 400 herramientas de crecimiento espiritual, hábitos y finanzas.</div>
+    <div class="chart-card">
+      <div class="chart-head"><span>Hoy</span><span>4 semanas</span></div>
+      <div class="chart-bar-bg"><div class="chart-bar-fill"></div></div>
+      <div class="chart-note">Gráfico ilustrativo. Los resultados dependen del compromiso de cada persona.</div>
+    </div>
+  </div>
+  <div class="bot"><button class="btn" onclick="next()">Ver mi plan →</button></div>`;
+}
+
+/* ─ RESULT 2 – coach ─ */
+function renderRes2(el){
+  el.innerHTML=`<div class="coach-wrap">
+    <div class="coach-tit">Todo lo que necesitas para el siguiente capítulo de tu vida</div>
+    <div class="coach-img">👔</div>
+    <div class="coach-card"><p>En 90 días puedes tener hábitos sólidos, más claridad espiritual y una ruta financiera real — si decides empezar hoy.</p></div>
+    <div class="coach-note">No tienes que resolver todo solo/a. Tienes un plan, herramientas y un coach que te acompaña cada paso del camino.</div>
+  </div>
+  <div class="bot"><button class="btn" onclick="next()">Sí, quiero transformar mi vida →</button></div>`;
+}
+
+/* ─ PRICING ─ */
+function renderPrice(el){
+  timerSecs=599;
+  if(timer) clearInterval(timer);
+  el.innerHTML=`<div class="price-wrap">
+    <div class="price-tit">Tu plan está listo — accede hoy con precio especial de lanzamiento</div>
+    <div class="free-trial-badge">
+      <strong>🎁 15 días completamente GRATIS</strong>
+      <span>Sin cobros ahora. Cancela cuando quieras.</span>
+    </div>
+    <div class="timer-card">
+      <div class="timer-label">Descuento reservado: <span id="tclock">09:59</span></div>
+      <div class="timer-sub">Elige tu plan — los primeros 15 días son gratis, luego se aplica el precio seleccionado.</div>
+    </div>
+    <div class="plan-card" onclick="selPlan(this,'1m')">
+      <div class="plan-body">
+        <div><div class="plan-name">1-Month Plan <span class="free-tag">15 días gratis</span></div><div class="plan-prices"><del>$59.99</del> <strong>$20.99</strong></div></div>
+        <div class="plan-rate"><div class="plan-rate-amount"><sup class="plan-rate-super">$</sup>0<span style="font-size:16px">.70</span></div><div class="plan-rate-day">per day</div></div>
+      </div>
+    </div>
+    <div class="plan-card sel" onclick="selPlan(this,'1w')">
+      <div class="plan-pop-banner">Most Popular</div>
+      <div class="plan-body">
+        <div><div class="plan-name">1-Week Plan <span class="free-tag">15 días gratis</span></div><div class="plan-prices"><del>$35.99</del> <strong>$10.99</strong></div></div>
+        <div class="plan-rate"><div class="plan-rate-amount"><sup class="plan-rate-super">$</sup>1<span style="font-size:16px">.57</span></div><div class="plan-rate-day">per day</div></div>
+      </div>
+    </div>
+    <div class="plan-card" onclick="selPlan(this,'3m')">
+      <div class="plan-body">
+        <div><div class="plan-name">3-Month Plan <span class="free-tag">15 días gratis</span></div><div class="plan-prices"><del>$125.99</del> <strong>$54.99</strong></div></div>
+        <div class="plan-rate"><div class="plan-rate-amount"><sup class="plan-rate-super">$</sup>0<span style="font-size:16px">.61</span></div><div class="plan-rate-day">per day</div></div>
+      </div>
+    </div>
+    <div class="price-footer">Garantía 30 días. Soporte: support@prayers.academy</div>
+  </div>
+  <div class="bot">
+    <a href="https://pay.hotmart.com/W105128423R?bid=1774755692970" target="_blank" style="display:block;text-decoration:none">
+      <button class="btn" style="width:100%">Começar meus 15 dias gratis →</button>
+    </a>
+  </div>`;
+
+  ans.plan='1w';
+  timer=setInterval(()=>{
+    timerSecs--;
+    if(timerSecs<0){timerSecs=0;clearInterval(timer);}
+    const m=Math.floor(timerSecs/60).toString().padStart(2,'0');
+    const s=(timerSecs%60).toString().padStart(2,'0');
+    const tc=document.getElementById('tclock');
+    if(tc) tc.textContent=`${m}:${s}`;
+  },1000);
+}
+
+/* ─ THANK YOU ─ */
+function renderTY(el){
+  if(timer) clearInterval(timer);
+  el.innerHTML=`<div class="ty-wrap">
+    <div class="ty-emoji">🎉</div>
+    <div class="ty-tit">¡Tu plan de 90 días está en camino!</div>
+    <div class="ty-txt">Revisa tu correo en los próximos minutos.<br><br>Tu primera sesión con el AI Pastor Coach te espera.<br><br>Empieza hoy. Un paso a la vez.</div>
+  </div>`;
+}
+
+/* ─ INTERACTIONS ─ */
+function esc(s){return s.replace(/'/g,"\\'");}
+
+function pickSingle(id,val,auto){
+  ans[id]=val;
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+  if(auto) setTimeout(()=>next(),280);
+}
+
+function pickSingleC(id,val){
+  ans[id]=val;
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+  const b=document.getElementById('cbtn');
+  if(b) b.disabled=false;
+}
+
+function pickEmoji(id,val){
+  ans[id]=val;
+  document.querySelectorAll('.emo').forEach(o=>o.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+  setTimeout(()=>next(),280);
+}
+
+function toggleMulti(id,val){
+  if(!ans[id]) ans[id]=[];
+  const i=ans[id].indexOf(val);
+  if(i>-1){ ans[id].splice(i,1); event.currentTarget.classList.remove('sel'); }
+  else { ans[id].push(val); event.currentTarget.classList.add('sel'); }
+  const b=document.getElementById('mbtn');
+  if(b) b.disabled=ans[id].length===0;
+}
+
+function chkEmail(){
+  const v=document.getElementById('einp').value;
+  const b=document.getElementById('ebtn');
+  if(b) b.disabled=!v.includes('@')||v.length<5;
+}
+
+function subEmail(){
+  ans.email=document.getElementById('einp').value;
+  next();
+}
+
+function selPlan(el,plan){
+  ans.plan=plan;
+  document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+</script>
+</body>
+</html>
